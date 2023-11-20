@@ -4,19 +4,23 @@ A Kanban board serves as an agile project management tool designed to visualize 
 Screenshot
 ![Alt text](image.png)
 
-Features
+## Features
 
-Columns
+### Columns
 
 Allows users to create, rename, and delete columns within a limit of 5. Dynamically hides the "Add Column" button and notifies users upon reaching the column limit.
 
-Tasks
+### Tasks
 
 Enables users to create, edit, and delete tasks within the columns.
 
-Drag and Drop
+### Drag and Drop
 
 Implements drag-and-drop functionality for seamless task movement within and between columns.
+
+### Live Link
+
+- Click this link to view the live application
 
 ## Project name
 
@@ -50,6 +54,8 @@ Stella project
 
 1. material UI
 
+1. VERCEL
+
 
 
 
@@ -73,7 +79,7 @@ Stella project
 
 
 
-## Live site link
+
 
 
 
