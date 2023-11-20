@@ -1,7 +1,7 @@
 # Kanban-Board App
 A Kanban board serves as an agile project management tool designed to visualize the ongoing tasks. It helps agile teams in bringing structure to their daily work routines.
 
-screenshop
+Screenshot
 ![Alt text](image.png)
 
 Features
