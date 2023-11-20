@@ -50,7 +50,7 @@ Stella project
 
 1. material UI
 
-1. Vercel
+
 
 
 
