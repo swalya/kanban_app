@@ -5,13 +5,17 @@ screenshop
 ![Alt text](image.png)
 
 Features
+
 Columns
+
 Allows users to create, rename, and delete columns within a limit of 5. Dynamically hides the "Add Column" button and notifies users upon reaching the column limit.
 
 Tasks
+
 Enables users to create, edit, and delete tasks within the columns.
 
 Drag and Drop
+
 Implements drag-and-drop functionality for seamless task movement within and between columns.
 
 ## Project name
