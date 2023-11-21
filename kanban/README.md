@@ -20,8 +20,6 @@ Implements drag-and-drop functionality for seamless task movement within and bet
 
 ### Live Link
 
-- Click this link to view the live application
-
 ## Project name
 
 Stella project
