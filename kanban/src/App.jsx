@@ -1,5 +1,5 @@
 import Header from "./components/Header"
-import Column from "./components/Column"
+import KanbanBoard from "./components/kanbanboard"
 
 function App() {
  
@@ -7,7 +7,7 @@ function App() {
     <>
    <div>
     <Header/>
-    <Column/>
+    <KanbanBoard/>
     </div>
     </>
   )
