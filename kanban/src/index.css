@@ -5,14 +5,16 @@
   :root {
   background-color: #e0e0e0;
   }
-  }
-  .add-column-button {
+}
 
-    width: 7cm;
-    height: 1cm;
-  }
-  
-  .add-card-button {
-    width: 5cm;
-    height: 1cm;
-  }
+
+.add-column-button {
+ 
+  width: 7cm;
+  height: 1cm;
+}
+
+.add-card-button {
+  width: 7cm;
+  height: 1cm;
+}
