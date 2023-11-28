@@ -1,23 +1,25 @@
 import { useState, useEffect } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material/styles'; 
-import { Dialog, DialogActions, DialogContent } from '@mui/material';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {
+createTheme,
+ThemeProvider,
 Button,
 Card,
 CardActions,
 CardContent,
+CardHeader,
 Divider,
 Grid,
-Typography,
-TextField,
 IconButton,
-CardHeader,
 Menu,
 MenuItem,
+TextField,
+Typography,
 } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Dialog, DialogActions, DialogContent } from '@mui/material';
 
 const KanbanBoard = () => {
 const [data, setData] = useState({
@@ -33,20 +35,29 @@ const [renameColumnOpen, setRenameColumnOpen] = useState(false);
 const [newColumnTitle, setNewColumnTitle] = useState('');
 const [taskError, setTaskError] = useState('');
 const [columnError, setColumnError] = useState('');
+const [editCardId, setEditCardId] = useState(null);
+const [deleteCardId, setDeleteCardId] = useState(null);
 
 useEffect(() => {
 // Save data to backend or perform other actions when data changes
 // For simplicity, this is an empty useEffect. You can add your logic here.
 }, [data]);
 
-const handleOpen = (columnId) => {
+const handleOpen = (columnId, cardId) => {
 setSelectedColumnId(columnId);
+setEditCardId(cardId);
+setNewTask({
+title:
+data.columns.find((col) => col.id === columnId)?.cards.find((card) => card.id === cardId)?.title || '',
+});
 setOpen(true);
 };
 
 const handleClose = () => {
 setOpen(false);
-setTaskError(null);
+setTaskError('');
+setEditCardId(null);
+setNewTask({ title: '' }); // Reset the input field when closing the dialog
 };
 
 const handleAddCard = () => {
@@ -56,14 +67,21 @@ return;
 }
 
 const newCard = {
-id: `Card${new Date().getTime()}`,
+id: editCardId || `Card${new Date().getTime()}`,
 title: newTask.title || 'New Task',
 };
 
 const updatedData = {
 ...data,
 columns: data.columns.map((column) =>
-column.id === selectedColumnId ? { ...column, cards: [...column.cards, newCard] } : column
+column.id === selectedColumnId
+? {
+...column,
+cards: editCardId
+? column.cards.map((card) => (card.id === editCardId ? { ...card, title: newTask.title } : card))
+: [...column.cards, newCard],
+}
+: column
 ),
 };
 
@@ -104,16 +122,16 @@ if (!result.destination) {
 return;
 }
 
-const updatedData = { ...data };
+setData((prevData) => {
+const updatedData = { ...prevData };
 const sourceColumn = updatedData.columns.find((column) => column.id === result.source.droppableId);
-const destinationColumn = updatedData.columns.find(
-(column) => column.id === result.destination.droppableId
-);
+const destinationColumn = updatedData.columns.find((column) => column.id === result.destination.droppableId);
 
 const [movedCard] = sourceColumn.cards.splice(result.source.index, 1);
 destinationColumn.cards.splice(result.destination.index, 0, movedCard);
 
-setData(updatedData);
+return updatedData;
+});
 };
 
 const handleMenuOpen = (event, columnId) => {
@@ -172,19 +190,33 @@ setMenuAnchor(null);
 setSelectedColumnId(null);
 };
 
+const handleDeleteCard = (columnId, cardId) => {
+const updatedData = {
+...data,
+columns: data.columns.map((column) =>
+column.id === columnId ? { ...column, cards: column.cards.filter((card) => card.id !== cardId) } : column
+),
+};
+
+setData(updatedData);
+setDeleteCardId(null);
+};
+
 return (
-<ThemeProvider theme={createTheme({
+<ThemeProvider
+theme={createTheme({
 palette: {
 primary: {
-main: '#7c4dff', // Set your primary color here
+main: '#7c4dff',
 },
 },
-})}>
+})}
+>
 <DragDropContext onDragEnd={handleDragEnd}>
 <Droppable droppableId="kanban-board" direction="horizontal" type="COLUMN">
 {(provided) => (
 <div ref={provided.innerRef} {...provided.droppableProps} className="kanban-board">
-<Grid container spacing={2} >
+<Grid container spacing={2}>
 {data.columns.map((column, index) => (
 <Draggable key={column.id} draggableId={column.id} index={index}>
 {(provided) => (
@@ -229,24 +261,34 @@ onClose={handleMenuClose}
 <Droppable droppableId={column.id} type="CARD">
 {(provided) => (
 <div ref={provided.innerRef} {...provided.droppableProps}>
-{column.cards.map((card, index) => (
-<Draggable
-key={card.id}
-draggableId={card.id}
-index={index}
->
+{column.cards.map((card, cardIndex) => (
+<Draggable key={card.id} draggableId={card.id} index={cardIndex}>
 {(provided) => (
 <Card
 key={card.id}
 className="task-card"
 style={{ marginBottom: '10px' }}
 >
-<CardContent 
+<CardContent
 ref={provided.innerRef}
 {...provided.draggableProps}
 {...provided.dragHandleProps}>
 <Typography>{card.title}</Typography>
 </CardContent>
+<CardActions>
+<IconButton
+aria-label="edit"
+onClick={() => handleOpen(column.id, card.id)}
+>
+<EditIcon />
+</IconButton>
+<IconButton
+aria-label="delete"
+onClick={() => setDeleteCardId(card.id)}
+>
+<DeleteIcon />
+</IconButton>
+</CardActions>
 </Card>
 )}
 </Draggable>
@@ -275,7 +317,7 @@ Add Card
 )}
 </Draggable>
 ))}
-<Grid item xs={3} >
+<Grid item xs={3}>
 <div className="column-header" style={{ flex: '0 0 auto', margin: '8px' }}>
 {data.columns.length < MAX_COLUMNS && (
 <Button
@@ -293,7 +335,7 @@ Add Column
 </div>
 )}
 </Droppable>
-<Dialog open={open} onClose={handleClose} >
+<Dialog open={open} onClose={handleClose}>
 <DialogContent>
 <TextField
 label="Name"
@@ -308,7 +350,7 @@ onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
 Cancel
 </Button>
 <Button onClick={handleAddCard} color="primary" variant="contained">
-Add
+{editCardId ? 'Edit' : 'Add'}
 </Button>
 </DialogActions>
 </Dialog>
@@ -349,10 +391,26 @@ Edit
 </Button>
 </DialogActions>
 </Dialog>
+<Dialog open={Boolean(deleteCardId)} onClose={() => setDeleteCardId(null)}>
+<DialogContent>
+<Typography>Are you sure you want to delete this card?</Typography>
+</DialogContent>
+<DialogActions style={{ justifyContent: 'space-between' }}>
+<Button onClick={() => setDeleteCardId(null)} color="primary">
+Cancel
+</Button>
+<Button
+onClick={() => handleDeleteCard(selectedColumnId, deleteCardId)}
+color="primary"
+variant="contained"
+>
+Delete
+</Button>
+</DialogActions>
+</Dialog>
 </DragDropContext>
 </ThemeProvider>
 );
 };
 
 export default KanbanBoard;
-
